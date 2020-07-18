@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+
 @RequestMapping("api/v1/commissionRate")
 @RestController
+@CrossOrigin(origins = { "http://localhost:3000" })
 public class CommissionRateController {
 
     private final CommissionRateService commissionRateService;

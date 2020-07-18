@@ -1,13 +1,8 @@
-import React from 'react'
-import { Typography } from '@material-ui/core'
+import React from "react";
+import { Typography } from "@material-ui/core";
 
 const Heading = (props) => {
-  const styles = {
-    margin: 20,
-  }
-  return (
-    <Typography variant="h2" style={styles}>{props.children}</Typography>
-  )
-}
+  return <Typography variant="h2">{props.children}</Typography>;
+};
 
-export default Heading
+export default Heading;
