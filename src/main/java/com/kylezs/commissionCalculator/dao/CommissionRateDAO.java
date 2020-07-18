@@ -20,6 +20,8 @@ public interface CommissionRateDAO {
     // Get a single commission rate
     Optional<CommissionRate> selectCommissionRateById(UUID id);
 
+    Optional<CommissionRate> selectCommissionRateForAchievement(double achievement);
+
     int deleteCommissionRateById(UUID id);
 
     int updateCommissionRateById(UUID id, CommissionRate commissionRate);

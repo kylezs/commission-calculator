@@ -38,7 +38,6 @@ public class CommissionRatePostresqlService implements CommissionRateDAO {
 
         final String sql = "SELECT id, rateName, lowerBoundAchievement, upperBoundAchievement," +
                 " commissionBase, commissionRate FROM commission_rate";
-        // Marshal the data from the SQL result set to java objects
         return jdbcTemplate.query(sql, (resultSet, i) -> new CommissionRate(
                 UUID.fromString(resultSet.getString("id")),
                 resultSet.getString("rateName"),
@@ -61,6 +60,24 @@ public class CommissionRatePostresqlService implements CommissionRateDAO {
                 resultSet.getDouble("commissionBase"),
                 resultSet.getDouble("commissionRate")
         ));
+        return Optional.ofNullable(commissionRate);
+    }
+
+    // Can find the range by going DOWN to the closest lower band
+    @Override
+    public Optional<CommissionRate> selectCommissionRateForAchievement(double achievement) {
+        final String sql = "SELECT * FROM commission_rate " +
+            "WHERE ? >= lowerBoundAchievement AND ? < upperBoundAchievement;";
+
+        Object[] args = new Object[] {achievement, achievement};
+        CommissionRate commissionRate = jdbcTemplate.queryForObject(sql, args, ((resultSet, i) -> new CommissionRate(
+                UUID.fromString(resultSet.getString("id")),
+                resultSet.getString("rateName"),
+                resultSet.getDouble("lowerBoundAchievement"),
+                resultSet.getDouble("upperBoundAchievement"),
+                resultSet.getDouble("commissionBase"),
+                resultSet.getDouble("commissionRate")
+        )));
         return Optional.ofNullable(commissionRate);
     }
 

@@ -36,6 +36,11 @@ public class FakeCommissionRateDataAccessService implements CommissionRateDAO {
     }
 
     @Override
+    public Optional<CommissionRate> selectCommissionRateForAchievement(double achievement) {
+        return Optional.empty();
+    }
+
+    @Override
     public int deleteCommissionRateById(UUID id) {
         Optional<CommissionRate> commissionRateMaybe = selectCommissionRateById(id);
         if (commissionRateMaybe.isEmpty()) {
