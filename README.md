@@ -17,7 +17,7 @@ It can calculate commissions based on an editable commissions calculator.
 3. `CREATE DATABASE commissiondb;`
 
 ## Start the backend
-1. In IntelliJ open `src/java/com.kylezs.commissionCalculator`
+1. In IntelliJ open `src/java/com.kylezs.commissionCalculator/commissionCalculatorApplication`
 2. Click the green Play button to start the application.
 > You may have to enable annotation processing on IntelliJ and have the Lombok plugin installed.
 
