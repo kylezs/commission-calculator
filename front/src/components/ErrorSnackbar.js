@@ -8,7 +8,6 @@ const ErrorSnackbar = ({error, setError}) => {
     if (reason === "clickaway") {
       return;
     }
-
     setError("");
   };
 

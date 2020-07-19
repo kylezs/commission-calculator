@@ -73,10 +73,15 @@ const CommissionRatesTable = () => {
   const [data, setData] = useState([]);
   const [error, setError] = useState("");
 
-  const sortAndReturnLowestUpperBound = (data) => {
+  const sortByLower = (data) => {
     const sortedData = data.sort(
       (a, b) => a.lowerBoundAchievement - b.lowerBoundAchievement
     );
+    return sortedData;
+  };
+
+  const sortAndReturnLowestUpperBound = (data) => {
+    const sortedData = sortByLower(data);
     const last = sortedData[sortedData.length - 1];
     return last.upperBoundAchievement;
   };
@@ -86,26 +91,34 @@ const CommissionRatesTable = () => {
     const fetchData = async () => {
       const result = await axios.get(COMMISSION_RATE_API_URL);
       const data = result.data;
-      const sortedData = data.sort(
-        (a, b) => a.lowerBoundAchievement - b.lowerBoundAchievement
-      );
+      const sortedData = sortByLower(data);
       setData(sortedData);
     };
 
     fetchData();
   }, []);
 
+  const allFieldsPresent = (newData) => {
+    const fields = [
+      "rateName",
+      "lowerBoundAchievement",
+      "upperBoundAchievement",
+      "commissionBase",
+      "commissionRate",
+    ];
+    let validObject = true;
+    fields.forEach((field) => {
+      if (!(field in newData)) {
+        validObject = false;
+      }
+    });
+    return validObject;
+  };
+
   const validateNewRow = (newData) => {
     // All fields must be present
-    if (
-      !(
-        "rateName" in newData &&
-        "lowerBoundAchievement" in newData &&
-        "upperBoundAchievement" in newData &&
-        "commissionBase" in newData &&
-        "commissionRate" in newData
-      )
-    ) {
+
+    if (!allFieldsPresent(newData)) {
       setError("All fields are required");
       return false;
     }
@@ -194,8 +207,6 @@ const CommissionRatesTable = () => {
 
   const deleteRow = (oldData) => {
     const rateId = oldData.id;
-    console.log("delete row");
-    console.log(oldData);
     return new Promise((resolve, reject) => {
       const index = oldData.tableData.id;
       if (index !== data.length - 1) {

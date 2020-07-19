@@ -31,7 +31,6 @@ public class CommissionRateController {
         return commissionRateService.getAllCommissionRates();
     }
 
-    // TODO: Custom error message here
     @GetMapping(path = "{id}")
     public CommissionRate getCommissionRateById(@PathVariable("id") UUID id) {
         return commissionRateService.getCommissionRateById(id)

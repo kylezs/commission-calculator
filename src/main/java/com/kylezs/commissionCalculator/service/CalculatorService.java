@@ -48,10 +48,7 @@ public class CalculatorService {
     }
 
     private double calculateCommissionRate(double achievement, CommissionRate commissionRate) {
-
         double aboveBase = achievement - commissionRate.getLowerBoundAchievement();
-        System.out.println("abovebase: " + aboveBase);
-        System.out.println(commissionRate.getCommissionRate());
         return commissionRate.getCommissionBase() + (aboveBase * commissionRate.getCommissionRate());
     }
 }

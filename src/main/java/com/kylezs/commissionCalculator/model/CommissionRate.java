@@ -1,6 +1,7 @@
 package com.kylezs.commissionCalculator.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@AllArgsConstructor
 public class CommissionRate {
 
     @JsonProperty("id")
@@ -17,8 +19,7 @@ public class CommissionRate {
     @JsonProperty("rateName")
     private String rateName;
 
-    // Create a range.
-    // TODO: It's important that ranges don't overlap. This: b1 > e2 OR e1 < b2 => they do overlap
+    // Create a range with lowerbound and upperbound
     @JsonProperty("lowerBoundAchievement")
     private double lowerBoundAchievement;
 
@@ -30,21 +31,6 @@ public class CommissionRate {
 
     @JsonProperty("commissionRate")
     private double commissionRate;
-
-    public CommissionRate(
-            UUID id,
-            String rateName,
-            double lowerBoundAchievement,
-            double upperBoundAchievement,
-            double commissionBase,
-            double commissionRate) {
-        this.id = id;
-        this.rateName = rateName;
-        this.lowerBoundAchievement = lowerBoundAchievement;
-        this.upperBoundAchievement = upperBoundAchievement;
-        this.commissionBase = commissionBase;
-        this.commissionRate = commissionRate;
-    }
 
 }
 
