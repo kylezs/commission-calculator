@@ -36,18 +36,12 @@ public class CommissionRateService {
         return commissionRateDAO.updateCommissionRateById(id, commissionRate);
     }
 
-    Optional<CommissionRate> selectCommissionRateForAchievement(double achievement) {
+    public Optional<CommissionRate> selectCommissionRateForAchievement(double achievement) {
         return commissionRateDAO.selectCommissionRateForAchievement(achievement);
     }
 
     public Optional<CommissionRate> getCommissionRateById(UUID id) {
         return commissionRateDAO.selectCommissionRateById(id);
     }
-
-    // For updating or deleting
-    private boolean continuityValidation(CommissionRate commissionRate) {
-
-    }
-
 
 }

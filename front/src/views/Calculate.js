@@ -1,21 +1,20 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { COMMISSION_RATES } from "./routes";
-import Layout from "./components/Layout";
-import Heading from "./components/Heading";
+import { COMMISSION_RATES } from "../routes";
+import Layout from "../components/Layout";
+import Heading from "../components/Heading";
 import { makeStyles } from "@material-ui/core/styles";
+import ErrorSnackbar from "../components/ErrorSnackbar";
 import {
   Button,
   TextField,
   Grid,
-  Snackbar,
   CardContent,
   Card,
   Typography,
 } from "@material-ui/core";
-import MuiAlert from "@material-ui/lab/Alert";
 import axios from "axios";
-import { CALCULATE_API_URL } from "./apiconfig";
+import { CALCULATE_API_URL } from "../apiconfig";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -45,19 +44,20 @@ const Calculate = () => {
     if (!validateFormData()) {
       return;
     }
-    console.log("calculating...");
-    console.log(actual, target, motc);
     const postData = {
       actual,
       target,
       motc,
     };
-    const resp = await axios.post(CALCULATE_API_URL, postData);
-    if (resp.status === 200) {
-      setResult(resp.data);
-    } else {
-      setError("Error doing calculation.");
-    }
+    axios
+      .post(CALCULATE_API_URL, postData)
+      .then((resp) => {
+        setResult(resp.data);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError(`Error doing calculation: ${err}`);
+      });
   };
 
   const validateFormData = () => {
@@ -65,6 +65,15 @@ const Calculate = () => {
       setError(
         "All values must be greater than or equal to 0. Target must be strictly greater than 0."
       );
+      return false;
+    }
+    if (motc > 10000) {
+      setError("MOTC must be between 0 and 10000");
+      return false;
+    }
+    const achievement = actual / target;
+    if (achievement > 99.99) {
+      setError("Achievement (actual / target) cannot be greater than 99.99");
       return false;
     }
     return true;
@@ -82,22 +91,14 @@ const Calculate = () => {
     }
   };
   const changeTarget = (value) => {
-    if (!isNaN(value)) {
+    if (!isNaN(value) && value !== 0) {
       setTarget(value);
     }
   };
   const changeMotc = (value) => {
-    if (!isNaN(value)) {
+    if (!isNaN(value) && value <= 10000) {
       setMotc(value);
     }
-  };
-
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setError("");
   };
 
   return (
@@ -168,24 +169,16 @@ const Calculate = () => {
         <Card>
           <CardContent>
             <Typography variant="h5">Commission</Typography>
-            {result.commission ? result.commission : "To be calculated"}
+            ${result.commission ? parseFloat(result.commission).toFixed(2) : 0}
           </CardContent>
         </Card>
         <Card>
           <CardContent>
             <Typography variant="h5">Achievement</Typography>
-            {result.achievement ? result.achievement : "To be calculated"}
+            {result.achievement ? parseFloat(result.achievement).toFixed(2) : 0}
           </CardContent>
         </Card>
-        <Snackbar
-          open={"" !== error}
-          autoHideDuration={6000}
-          onClose={handleClose}
-        >
-          <MuiAlert onClose={handleClose} severity="error">
-            {error}
-          </MuiAlert>
-        </Snackbar>
+        <ErrorSnackbar error={error} setError={setError} />
       </div>
     </Layout>
   );

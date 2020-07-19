@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { CALCULATE } from "./routes";
-import Layout from "./components/Layout";
-import Heading from "./components/Heading";
+import { CALCULATE } from "../routes";
+import Layout from "../components/Layout";
+import Heading from "../components/Heading";
 import { Button } from "@material-ui/core";
-import CommissionRatesTable from "./components/CommissionRatesTable";
+import CommissionRatesTable from "../components/CommissionRatesTable";
 import axios from "axios";
-import { COMMISSION_RATE_API_URL } from "./apiconfig";
+import { COMMISSION_RATE_API_URL } from "../apiconfig";
 
 const CommissionRates = () => {
   const [data, setData] = useState({});

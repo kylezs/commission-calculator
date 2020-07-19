@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import MaterialTable from "material-table";
 import axios from "axios";
 import { COMMISSION_RATE_API_URL } from "../apiconfig";
+import ErrorSnackbar from "./ErrorSnackbar";
 
 import { forwardRef } from "react";
 
+// Required for material-table
 import AddBox from "@material-ui/icons/AddBox";
 import ArrowDownward from "@material-ui/icons/ArrowDownward";
 import Check from "@material-ui/icons/Check";
@@ -46,9 +48,7 @@ const tableIcons = {
 };
 
 const CommissionRatesTable = () => {
-  const { useState } = React;
-
-  const [columns, setColumns] = useState([
+  const [columns] = useState([
     {
       title: "Rate name",
       field: "rateName",
@@ -71,8 +71,10 @@ const CommissionRatesTable = () => {
     },
   ]);
   const [data, setData] = useState([]);
+  const [error, setError] = useState("");
+  const [lowestUpperBound, setLowestUpperBound] = useState("");
 
-  // Get the list of commission rates currently stored
+  // Get the list of commission rates currently stored, to populate the table
   useEffect(() => {
     const fetchData = async () => {
       const result = await axios.get(COMMISSION_RATE_API_URL);
@@ -80,81 +82,150 @@ const CommissionRatesTable = () => {
       const sortedData = data.sort(
         (a, b) => a.lowerBoundAchievement - b.lowerBoundAchievement
       );
-
+      const last = sortedData[sortedData.length - 1];
+      setLowestUpperBound(last.upperBoundAchievement);
       setData(sortedData);
     };
 
     fetchData();
   }, []);
 
+  const validateNewRow = (newData) => {
+    // All fields must be present
+    if (
+      !(
+        "rateName" in newData &&
+        "lowerBoundAchievement" in newData &&
+        "upperBoundAchievement" in newData &&
+        "commissionBase" in newData &&
+        "commissionRate" in newData
+      )
+    ) {
+      setError("All fields are required");
+      return false;
+    }
+    if (newData.lowerBoundAchievement !== lowestUpperBound) {
+      setError(`The lower bound must be equal to ${lowestUpperBound}`);
+      return false;
+    } else if (newData.upperBoundAchievement < newData.lowerBoundAchievement) {
+      setError("The upper bound must be greater than the lower bound");
+      return false;
+    } else if (newData.upperBoundAchievement > 99.99) {
+      setError("The upper bound cannot be greater than 99.99");
+      return false;
+    }
+    return true;
+  };
+
   const addRow = (newData) => {
-    console.log("Add row, new data:");
-    console.log(newData);
-    return new Promise(async (resolve, reject) => {
-      const resp = await axios.post(COMMISSION_RATE_API_URL, newData);
-      if (resp.status === 200) {
-        setData([...data, newData]);
-        resolve();
-      } else {
-        // CREATE SNACKBAR ERROR
-        console.log("ERROR HERE SAVING");
+    return new Promise((resolve, reject) => {
+      if (!validateNewRow(newData)) {
+        // Errors captured in the function itself
         reject();
+        return;
       }
+      axios
+        .post(COMMISSION_RATE_API_URL, newData)
+        .then((resp) => {
+          setData([...data, newData]);
+          resolve();
+        })
+        .catch((err) => {
+          setError(err);
+          reject();
+        });
     });
   };
 
+  // Find the fields that have been changed
+  const getChangedFields = (newData, oldData) => {
+    let changedFields = [];
+    for (let key in newData) {
+      if (newData[key] !== oldData[key]) {
+        changedFields.push(key);
+      }
+    }
+    return changedFields;
+  };
+
   const updateRow = (newData, oldData) => {
-    console.log("Update row");
     console.log(newData);
     console.log(oldData);
+    // return;
+    const changedFields = getChangedFields(newData, oldData);
 
-    return new Promise(async (resolve, reject) => {
-      const rateId = oldData.id;
-      const resp = await axios.put(
-        `${COMMISSION_RATE_API_URL}/${rateId}`,
-        newData
-      );
-      if (resp.status === 200) {
-        const dataUpdate = [...data];
-        const index = oldData.tableData.id;
-        dataUpdate[index] = newData;
-        setData([...dataUpdate]);
+    return new Promise((resolve, reject) => {
+      const index = oldData.tableData.id;
 
-        resolve();
-      } else {
-        reject();
+      // If it's not the last element, only allow editing of non-range fields
+      if (index !== data.length - 1) {
+        if (
+          changedFields.includes("lowerBoundAchievement") ||
+          changedFields.includes("upperBoundAchievement")
+        ) {
+          setError(
+            "You can only edit the ranges of the last entry. To keep continuity."
+          );
+          reject();
+          return;
+        }
       }
+      const rateId = oldData.id;
+      axios
+        .put(`${COMMISSION_RATE_API_URL}/${rateId}`, newData)
+        .then((resp) => {
+          const dataUpdate = [...data];
+          const index = oldData.tableData.id;
+          dataUpdate[index] = newData;
+          setData([...dataUpdate]);
+          resolve();
+        })
+        .catch((err) => {
+          setError(err);
+          reject();
+        });
     });
   };
 
   const deleteRow = (oldData) => {
     const rateId = oldData.id;
-    return new Promise(async (resolve, reject) => {
-      const resp = await axios.delete(`${COMMISSION_RATE_API_URL}/${rateId}`);
-      if (resp.status === 200) {
-        const dataDelete = [...data];
-        const index = oldData.tableData.id;
-        dataDelete.splice(index, 1);
-        setData([...dataDelete]);
-        resolve();
-      } else {
+    return new Promise((resolve, reject) => {
+      const index = oldData.tableData.id;
+      if (index !== data.length - 1) {
+        setError("You can only delete the last entry. To keep continuity.");
         reject();
+        return;
       }
+      axios
+        .delete(`${COMMISSION_RATE_API_URL}/${rateId}`)
+        .then((resp) => {
+          const dataDelete = [...data];
+          dataDelete.splice(index, 1);
+          setData([...dataDelete]);
+          resolve();
+        })
+        .catch((err) => {
+          setError(`Error: ${err}`);
+          reject();
+        });
     });
   };
 
   return (
-    <MaterialTable
-      title="Commission Rates"
-      columns={columns}
-      icons={tableIcons}
-      data={data}
-      editable={{
-        onRowAdd: (newData) => addRow(newData),
-        onRowUpdate: (newData, oldData) => updateRow(newData, oldData),
-        onRowDelete: (oldData) => deleteRow(oldData),
-      }}
-    />
+    <>
+      <MaterialTable
+        title="Commission Rates"
+        columns={columns}
+        icons={tableIcons}
+        data={data}
+        editable={{
+          onRowAdd: (newData) => addRow(newData),
+          onRowUpdate: (newData, oldData) => updateRow(newData, oldData),
+          onRowDelete: (oldData) => deleteRow(oldData),
+        }}
+      />
+      <ErrorSnackbar error={error} setError={setError} />
+    </>
   );
 };
 
