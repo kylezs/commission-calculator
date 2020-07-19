@@ -8,9 +8,9 @@ import java.util.UUID;
 
 public interface CommissionRateDAO {
 
-    int insertCommissionRate(UUID id, CommissionRate commissionRate);
+    CommissionRate insertCommissionRate(UUID id, CommissionRate commissionRate);
 
-    default int insertCommissionRate(CommissionRate commissionRate) {
+    default CommissionRate insertCommissionRate(CommissionRate commissionRate) {
         UUID id = UUID.randomUUID();
         return insertCommissionRate(id, commissionRate);
     }
@@ -20,6 +20,7 @@ public interface CommissionRateDAO {
     // Get a single commission rate
     Optional<CommissionRate> selectCommissionRateById(UUID id);
 
+    // Find the commissionRate that covers the range this achievement falls within
     Optional<CommissionRate> selectCommissionRateForAchievement(double achievement);
 
     int deleteCommissionRateById(UUID id);

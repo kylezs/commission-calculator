@@ -20,7 +20,7 @@ public class CommissionRateService {
         this.commissionRateDAO = commissionRateDAO;
     }
 
-    public int addCommissionRate(CommissionRate commissionRate) {
+    public CommissionRate addCommissionRate(CommissionRate commissionRate) {
         return commissionRateDAO.insertCommissionRate(commissionRate);
     }
 

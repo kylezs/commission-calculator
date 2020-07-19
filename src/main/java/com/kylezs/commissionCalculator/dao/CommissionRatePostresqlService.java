@@ -20,10 +20,10 @@ public class CommissionRatePostresqlService implements CommissionRateDAO {
     }
 
     @Override
-    public int insertCommissionRate(UUID id, CommissionRate commissionRate) {
+    public CommissionRate insertCommissionRate(UUID id, CommissionRate commissionRate) {
         final String sql = "INSERT INTO commission_rate " +
                 "VALUES (?, ?, ?, ?, ?, ?);";
-        return jdbcTemplate.update(sql,
+        jdbcTemplate.update(sql,
                 id,
                 commissionRate.getRateName(),
                 commissionRate.getLowerBoundAchievement(),
@@ -31,6 +31,13 @@ public class CommissionRatePostresqlService implements CommissionRateDAO {
                 commissionRate.getCommissionBase(),
                 commissionRate.getCommissionRate()
         );
+
+        return new CommissionRate(id,
+                commissionRate.getRateName(),
+                commissionRate.getLowerBoundAchievement(),
+                commissionRate.getUpperBoundAchievement(),
+                commissionRate.getCommissionBase(),
+                commissionRate.getCommissionRate());
     }
 
     @Override

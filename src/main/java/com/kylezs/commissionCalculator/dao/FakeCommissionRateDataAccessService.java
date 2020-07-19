@@ -14,13 +14,14 @@ public class FakeCommissionRateDataAccessService implements CommissionRateDAO {
     private static List<CommissionRate> DB = new ArrayList<>();
 
     @Override
-    public int insertCommissionRate(UUID id, CommissionRate commissionRate) {
-        DB.add(new CommissionRate(id, commissionRate.getRateName(),
+    public CommissionRate insertCommissionRate(UUID id, CommissionRate commissionRate) {
+        CommissionRate commissionRate1 = new CommissionRate(id, commissionRate.getRateName(),
                 commissionRate.getLowerBoundAchievement(),
                 commissionRate.getUpperBoundAchievement(),
                 commissionRate.getCommissionBase(),
-                commissionRate.getCommissionRate()));
-        return 1;
+                commissionRate.getCommissionRate());
+        DB.add(commissionRate1);
+        return commissionRate1;
     }
 
     @Override

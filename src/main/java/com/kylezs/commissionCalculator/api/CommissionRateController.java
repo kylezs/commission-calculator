@@ -22,8 +22,8 @@ public class CommissionRateController {
     }
 
     @PostMapping
-    public void addCommissionRate(@RequestBody CommissionRate commissionRate) {
-        commissionRateService.addCommissionRate(commissionRate);
+    public CommissionRate addCommissionRate(@RequestBody CommissionRate commissionRate) {
+        return commissionRateService.addCommissionRate(commissionRate);
     }
 
     @GetMapping

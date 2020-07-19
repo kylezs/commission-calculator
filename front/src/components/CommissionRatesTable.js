@@ -72,7 +72,14 @@ const CommissionRatesTable = () => {
   ]);
   const [data, setData] = useState([]);
   const [error, setError] = useState("");
-  const [lowestUpperBound, setLowestUpperBound] = useState("");
+
+  const sortAndReturnLowestUpperBound = (data) => {
+    const sortedData = data.sort(
+      (a, b) => a.lowerBoundAchievement - b.lowerBoundAchievement
+    );
+    const last = sortedData[sortedData.length - 1];
+    return last.upperBoundAchievement;
+  };
 
   // Get the list of commission rates currently stored, to populate the table
   useEffect(() => {
@@ -82,8 +89,6 @@ const CommissionRatesTable = () => {
       const sortedData = data.sort(
         (a, b) => a.lowerBoundAchievement - b.lowerBoundAchievement
       );
-      const last = sortedData[sortedData.length - 1];
-      setLowestUpperBound(last.upperBoundAchievement);
       setData(sortedData);
     };
 
@@ -104,6 +109,7 @@ const CommissionRatesTable = () => {
       setError("All fields are required");
       return false;
     }
+    const lowestUpperBound = sortAndReturnLowestUpperBound(data);
     if (newData.lowerBoundAchievement !== lowestUpperBound) {
       setError(`The lower bound must be equal to ${lowestUpperBound}`);
       return false;
@@ -127,6 +133,8 @@ const CommissionRatesTable = () => {
       axios
         .post(COMMISSION_RATE_API_URL, newData)
         .then((resp) => {
+          console.log(resp.data.id);
+          newData.id = resp.data.id;
           setData([...data, newData]);
           resolve();
         })
@@ -149,9 +157,6 @@ const CommissionRatesTable = () => {
   };
 
   const updateRow = (newData, oldData) => {
-    console.log(newData);
-    console.log(oldData);
-    // return;
     const changedFields = getChangedFields(newData, oldData);
 
     return new Promise((resolve, reject) => {
@@ -189,6 +194,8 @@ const CommissionRatesTable = () => {
 
   const deleteRow = (oldData) => {
     const rateId = oldData.id;
+    console.log("delete row");
+    console.log(oldData);
     return new Promise((resolve, reject) => {
       const index = oldData.tableData.id;
       if (index !== data.length - 1) {
