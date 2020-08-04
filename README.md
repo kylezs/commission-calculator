@@ -1,6 +1,6 @@
 # Commission Calculator
 
-This is a Java Spring Application with a ReactJS Frontend.
+This was my first adventure into Java Spring. The application has a ReactJS Frontend.
 
 It can calculate commissions based on an editable commissions calculator.
 
